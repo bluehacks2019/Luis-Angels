@@ -33,6 +33,7 @@ def webhook():
     if data["object"] == "page":
 
         for entry in data["entry"]:
+            print(entry)
             for messaging_event in entry["messaging"]:
 
                 if messaging_event.get("message"):  # someone sent us a message
