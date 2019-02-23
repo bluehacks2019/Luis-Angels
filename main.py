@@ -29,6 +29,7 @@ def webhook():
     data = request.get_json()
 
     display_greeting()
+    persistent_menu()
 
     if data["object"] == "page":
         for entry in data["entry"]:
@@ -60,7 +61,8 @@ def webhook():
                     pass
 
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
-                    pass
+                    payload = messaging_event["postback"]["payload"]
+                    send_message(sender_id, payload)
 
                 display_action(sender_id, "typing_off")
 
@@ -107,13 +109,73 @@ def display_greeting():
         "Content-Type": "application/json"
     }
     data = json.dumps({
+        "get_started": {
+            "payload": "get_started"
+        },
         "greeting": [{
             "locale":"default",
-            "text":"Hello {{user_first_name}}!!"
+            "text":"Hello, {{user_first_name}}!"
         }]
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messenger_profile", params=params, headers=headers, data=data)
 
+def persistent_menu():
+    params = {
+        "access_token": PAT
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps({
+        "persistent_menu": [{
+            "locale":"default",
+            "call_to_actions":[
+				{
+					"title":"Share something",
+					"type":"nested",
+					"call_to_actions":[
+						{
+							"title":"A Notable Experience", # change this
+							"type":"postback",
+							"payload":"NOTABLE_EXPERIENCE"
+						},
+						{
+							"title":"A Reason to be Thankful",
+							"type":"postback",
+							"payload":"REASON_TO_BE_THANKFUL"
+						},
+						{
+							"title":"A Small Victory",
+							"type":"postback",
+							"payload":"SMALL_VICTORIES"
+						}
+					]
+				},
+				{
+					"title":"Recall a memory",
+					"type":"postback", #ata??
+					"payload":"RECALL_MEMORY"
+				},
+				{
+					"title":"View settings",
+					"type":"nested",
+					"call_to_actions":[
+						{
+							"title":"View tags",
+							"type":"postback",
+							"payload":"VIEW_TAGS"
+						},
+						{
+							"title":"Notifications",
+							"type":"postback",
+							"payload":"NOTIFICATIONS"
+						}
+					]
+				}
+			]
+        }]
+    })
+    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
 
 if __name__ == '__main__':
     app.run(debug=True)
