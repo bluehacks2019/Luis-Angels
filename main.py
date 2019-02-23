@@ -14,6 +14,7 @@ VERIFY_TOKEN = 'luis_angels'
 
 @app.route('/')
 def test():
+    print("hello!")
     return "hello"
 
 # @app.route('/', methods=['GET'])
