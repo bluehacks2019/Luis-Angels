@@ -12,7 +12,11 @@ app = Flask(__name__)
 PAT = 'EAAFkcN1DoJ0BAPwiRqGRN3AdvLjoNLOiWoXZCWa2uUyVtuJAdO57CBZC2gYSbMv73beNxLVTa9Sgn1ej4HqoicsXqOmU9LdyaY4juKxS9BIiCH7r8llffRraDS8WroJTg0UNWsBZAZB6q8fUGIJZAA7n142KFWGfJ4t55tRZBEZCQZDZD'
 VERIFY_TOKEN = 'luis_angels'
 
-@app.route('/', methods=['GET'])
+@app.route('/')
+def test():
+    return "hello"
+
+# @app.route('/', methods=['GET'])
 def verify():
     # when the endpoint is registered as a webhook, it must echo back
     # the 'hub.challenge' value it receives in the query arguments
@@ -25,7 +29,7 @@ def verify():
 
 q_versions = ["notable experience", "reason to be thankful", "small victory"]
 
-@app.route('/', methods=['POST'])
+# @app.route('/', methods=['POST'])
 def webhook():
     # endpoint for processing incoming messaging events
     data = request.get_json()
