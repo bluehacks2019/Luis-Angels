@@ -42,7 +42,14 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
 
-                    send_message(sender_id, message_text)
+                    nlp_entities = messaging_event["message"]["nlp"]["entities"]
+                    print(entities)
+                    sentiment = "unsure"
+                    # if (nlp_entities.get("sentiment")):
+                    #     if (float(nlp_entities["sentiment"]["confidence"]) > 0.8)
+                    #         sentiment = nlp_entities["sentiment"]["value"]
+
+                    send_message(sender_id, message_text + ", sentiment: " + sentiment)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
