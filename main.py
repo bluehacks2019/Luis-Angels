@@ -2,6 +2,7 @@ import sys
 import json
 import time
 from datetime import datetime
+import random
 
 import requests
 from flask import Flask, request
@@ -22,6 +23,7 @@ def verify():
 
     return "Hello world", 200
 
+q_versions = ["notable experience", "reason to be thankful", "small victory"]
 
 @app.route('/', methods=['POST'])
 def webhook():
@@ -29,7 +31,6 @@ def webhook():
     data = request.get_json()
 
     display_greeting()
-    persistent_menu()
 
     if data["object"] == "page":
         for entry in data["entry"]:
@@ -52,6 +53,9 @@ def webhook():
                         if (float(nlp_entities["sentiment"][0]["confidence"]) > 0.6):
                             sentiment = nlp_entities["sentiment"][0]["value"]
 
+                    if message_text == "start":
+                        q = "Can you share a " + random.choice(q_versions) + " for today?"
+                        send_message(sender_id)
                     send_message(sender_id, message_text + ", sentiment: " + sentiment)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
@@ -62,12 +66,12 @@ def webhook():
 
                 if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
                     payload = messaging_event["postback"]["payload"]
+                    print(payload)
                     send_message(sender_id, payload)
 
                 display_action(sender_id, "typing_off")
 
     return "ok", 200
-
 
 def send_message(recipient_id, message_text):
     params = {
@@ -119,63 +123,5 @@ def display_greeting():
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messenger_profile", params=params, headers=headers, data=data)
 
-def persistent_menu():
-    params = {
-        "access_token": PAT
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = json.dumps({
-        "persistent_menu": [{
-            "locale":"default",
-            "call_to_actions":[
-				{
-					"title":"Share something",
-					"type":"nested",
-					"call_to_actions":[
-						{
-							"title":"A Notable Experience", # change this
-							"type":"postback",
-							"payload":"NOTABLE_EXPERIENCE"
-						},
-						{
-							"title":"A Reason to be Thankful",
-							"type":"postback",
-							"payload":"REASON_TO_BE_THANKFUL"
-						},
-						{
-							"title":"A Small Victory",
-							"type":"postback",
-							"payload":"SMALL_VICTORIES"
-						}
-					]
-				},
-				{
-					"title":"Recall a memory",
-					"type":"postback", #ata??
-					"payload":"RECALL_MEMORY"
-				},
-				{
-					"title":"View settings",
-					"type":"nested",
-					"call_to_actions":[
-						{
-							"title":"View tags",
-							"type":"postback",
-							"payload":"VIEW_TAGS"
-						},
-						{
-							"title":"Notifications",
-							"type":"postback",
-							"payload":"NOTIFICATIONS"
-						}
-					]
-				}
-			]
-        }]
-    })
-    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
