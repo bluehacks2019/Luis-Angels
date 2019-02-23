@@ -43,11 +43,11 @@ def webhook():
                     message_text = messaging_event["message"]["text"]  # the message's text
 
                     nlp_entities = messaging_event["message"]["nlp"]["entities"]
-                    print(entities)
+                    print(nlp_entities)
                     sentiment = "unsure"
-                    # if (nlp_entities.get("sentiment")):
-                    #     if (float(nlp_entities["sentiment"]["confidence"]) > 0.8)
-                    #         sentiment = nlp_entities["sentiment"]["value"]
+                    if (nlp_entities.get("sentiment")):
+                        if (float(nlp_entities["sentiment"][0]["confidence"]) > 0.8)
+                            sentiment = nlp_entities["sentiment"][0]["value"]
 
                     send_message(sender_id, message_text + ", sentiment: " + sentiment)
 
