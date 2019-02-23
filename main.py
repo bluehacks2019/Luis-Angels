@@ -28,6 +28,8 @@ def webhook():
     # endpoint for processing incoming messaging events
     data = request.get_json()
 
+    display_greeting()
+
     if data["object"] == "page":
         for entry in data["entry"]:
             print(entry)
@@ -96,6 +98,21 @@ def display_action(recipient_id, action):
         "sender_action": action
     })
     r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
+
+def display_greeting():
+    params = {
+        "access_token": PAT
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    data = json.dumps({
+        "greeting": [{
+            "locale":"default",
+            "text":"Hello {{user_first_name}}!!"
+        }]
+    })
+    r = requests.post("https://graph.facebook.com/v2.6/me/messenger_profile", params=params, headers=headers, data=data)
 
 
 if __name__ == '__main__':
