@@ -3,6 +3,7 @@ import json
 import time
 from datetime import date
 from datetime import datetime
+from story_generator import generator
 import random
 
 import requests
@@ -149,7 +150,12 @@ def webhook():
                                     r_end = "What else happened " + datetime_body + "?"
                                 else:
                                     r_end = "What else happened around " + datetime_body + "?"
-                            send_message(sender_id, r_start + " " + r_end)
+                            if (len(users_data[sender_id][0]) + 1) % 10 == 0:
+                                robot_message = "I'm really thankful that you've shared your positive experiences with me. In return, let me write an imaginary continuation of your last message:"
+                                imaginary_story = generator(message_text)
+                                send_message(sender_id, robot_message + "\n\n" + imaginary_story)
+                            else:
+                                send_message(sender_id, r_start + " " + r_end)
                         elif random.random() < 0.20 and len(users_data[sender_id][0]) > 0:
                             message, date_dati = random.choice(users_data[sender_id][0])
                             send_message(sender_id, "On " + date_dati + ", this memory lifted your spirits up. :)")
