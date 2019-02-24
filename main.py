@@ -23,8 +23,27 @@ def verify():
 
     return "Hello world", 200
 
-questions = ["notable experience", "reason to be thankful", "small victory"]
-responses_to_positive = ["Nice!", "Great!", "Oh, I'd love to hear more about it!"]
+questions = [
+    "notable experience",
+    "reason to be thankful",
+    "small victory"
+]
+responses_to_positive_start = [
+    "Thank you for sharing that with me!",
+    "That's great!",
+    "Nice!"
+]
+responses_to_positive_end = [
+    "I'd love to hear more about it!",
+    "Do you have more positive memories for today?",
+    "How's school?"
+]
+responses_to_thanks = [
+    "Don't mention it!",
+    "You're welcome!",
+    "Welcome!",
+    ":) I'll always be here whenever you wanna share."
+]
 
 active_users = set()
 
@@ -56,17 +75,45 @@ def webhook():
                         if (float(nlp_entities["sentiment"][0]["confidence"]) > 0.6):
                             sentiment = nlp_entities["sentiment"][0]["value"]
 
-                    if sender_id not in active_users:
+                    bye = False
+                    if (nlp_entities.get("bye")):
+                        if (float(nlp_entities["bye"][0]["confidence"]) > 0.8):
+                            bye = True
+
+                    thanks = False
+                    if (nlp_entities.get("thanks")):
+                        if (float(nlp_entities["thanks"][0]["confidence"]) > 0.8):
+                            thanks = True
+
+                    datetime_body = None
+                    datetime_type = None
+                    if nlp_entities.get("datetime"):
+                        if float(nlp_entities["datetime"][0]["confidence"]) > 0.8:
+                            datetime_body = nlp_entities["datetime"][0]["_body"]
+                            datetime_type = nlp_entities["datetime"][0]["type"]
+
+                    if bye:
+                        send_message(sender_id, "Thanks for sharing with me. I hope we can talk again tomorrow!")
+                        active_users.remove(sender_id)
+                    elif sender_id not in active_users:
                         q = "Can you share a " + random.choice(questions) + " for today?"
                         send_message(sender_id, "Hi! " + q)
                         active_users.add(sender_id)
                     else:
-                        if sentiment == "positive" or sentiment == "unsure":
-                            r = random.choice(responses_to_positive)
+                        if thanks:
+                            r = random.choice(responses_to_thanks)
                             send_message(sender_id, r)
-                            active_users.remove(sender_id)
+                        elif sentiment == "positive":
+                            r_start = random.choice(responses_to_positive_start)
+                            r_end = random.choice(responses_to_positive_end)
+                            if datetime_body:
+                                if datetime_type == "interval":
+                                    r_end = "What else happened " + datetime_body + "?"
+                                else:
+                                    r_end = "What else happened around " + datetime_body + "?"
+                            send_message(sender_id, r_start + " " + r_end)
                         else:
-                            send_message(sender_id, "I see. How about something more positive?")
+                            send_message(sender_id, "I see. Can you think of something that made you even a little bit happy today?")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
