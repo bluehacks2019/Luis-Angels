@@ -12,12 +12,7 @@ app = Flask(__name__)
 PAT = 'EAAFkcN1DoJ0BAPwiRqGRN3AdvLjoNLOiWoXZCWa2uUyVtuJAdO57CBZC2gYSbMv73beNxLVTa9Sgn1ej4HqoicsXqOmU9LdyaY4juKxS9BIiCH7r8llffRraDS8WroJTg0UNWsBZAZB6q8fUGIJZAA7n142KFWGfJ4t55tRZBEZCQZDZD'
 VERIFY_TOKEN = 'luis_angels'
 
-@app.route('/')
-def test():
-    print("hello!")
-    return "hello"
-
-# @app.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def verify():
     # when the endpoint is registered as a webhook, it must echo back
     # the 'hub.challenge' value it receives in the query arguments
@@ -28,9 +23,12 @@ def verify():
 
     return "Hello world", 200
 
-q_versions = ["notable experience", "reason to be thankful", "small victory"]
+questions = ["notable experience", "reason to be thankful", "small victory"]
+responses_to_positive = ["Nice!", "Great!", "Oh, I'd love to hear more about it!"]
 
-# @app.route('/', methods=['POST'])
+active_users = set()
+
+@app.route('/', methods=['POST'])
 def webhook():
     # endpoint for processing incoming messaging events
     data = request.get_json()
@@ -58,10 +56,17 @@ def webhook():
                         if (float(nlp_entities["sentiment"][0]["confidence"]) > 0.6):
                             sentiment = nlp_entities["sentiment"][0]["value"]
 
-                    if message_text == "start":
-                        q = "Can you share a " + random.choice(q_versions) + " for today?"
-                        send_message(sender_id)
-                    send_message(sender_id, message_text + ", sentiment: " + sentiment)
+                    if sender_id not in active_users:
+                        q = "Can you share a " + random.choice(questions) + " for today?"
+                        send_message(sender_id, "Hi! " + q)
+                        active_users.add(sender_id)
+                    else:
+                        if sentiment == "positive" or sentiment == "unsure":
+                            r = random.choice(responses_to_positive)
+                            send_message(sender_id, r)
+                            active_users.remove(sender_id)
+                        else:
+                            send_message(sender_id, "I see. How about something more positive?")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
