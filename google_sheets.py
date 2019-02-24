@@ -57,7 +57,7 @@ def get_values(spreadsheet_id, range_name):
 	service = build('sheets', 'v4', credentials=credentials)
 	result = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_name).execute()
 	numRows = result.get('values') if result.get('values') is not None else 0
-	print('{0} rows retrieved.'.format(numRows))
+	# print('{0} rows retrieved.'.format(numRows))
 	# [END sheets_get_values]
 	return result["values"]
 

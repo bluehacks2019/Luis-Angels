@@ -1,6 +1,7 @@
 import sys
 import json
 import time
+from datetime import date
 from datetime import datetime
 import random
 
@@ -62,12 +63,32 @@ responses_neutral_negative = [
 	"Oh, okay. Maybe there's more you can share with me!"
 ]
 
-active_users = set()
+# active_users = set()
 
 spreadsheet = '1HRSiXLFFe3fYqGKCYSRYsYYgHpWQDKegpDJ1M4--mTQ'
 
+users_data = {}
+def prepare_user_data(sheet):
+    for i in range(1, len(sheet)):
+        users_data[sheet[i][0]] = [[], [], []]
+
+    for i in range(1, len(sheet)):
+        temp = (sheet[i][1], sheet[i][3])
+        if sheet[i][2] == "positive":
+            users_data[sheet[i][0]][0].append(temp)
+        elif sheet[i][2] == "unsure":
+            users_data[sheet[i][0]][1].append(temp)
+        else:
+            users_data[sheet[i][0]][2].append(temp)
+
 @app.route('/', methods=['POST'])
 def webhook():
+    global users_data
+    users_data = {}
+
+    sheet = google_sheets.get_values(spreadsheet, 'messages')
+    prepare_user_data(sheet)
+
     # endpoint for processing incoming messaging events
     data = request.get_json()
 
@@ -111,17 +132,15 @@ def webhook():
                             datetime_body = nlp_entities["datetime"][0]["_body"]
                             datetime_type = nlp_entities["datetime"][0]["type"]
 
-                    if bye:
-                        send_message(sender_id, random.choice(responses_to_bye))
-                        active_users.remove(sender_id)
-                    elif sender_id not in active_users:
-                        q = "Can you share a " + random.choice(questions) + " for today?"
-                        send_message(sender_id, "Hi! " + q)
-                        active_users.add(sender_id)
+                    if sender_id not in users_data:
+                        q = "Hi! Can you share a " + random.choice(questions) + " for today?"
+                        send_message(sender_id, q)
                     else:
                         if thanks:
                             r = random.choice(responses_to_thanks)
                             send_message(sender_id, r)
+                        elif bye:
+                            send_message(sender_id, random.choice(responses_to_bye))
                         elif sentiment == "positive":
                             r_start = random.choice(responses_to_positive_start)
                             r_end = random.choice(responses_to_positive_end)
@@ -131,13 +150,18 @@ def webhook():
                                 else:
                                     r_end = "What else happened around " + datetime_body + "?"
                             send_message(sender_id, r_start + " " + r_end)
-                        else:
-                            send_message(sender_id, random.choice(responses_neutral_negative)
+                        elif random.random() < 0.20 and len(users_data[sender_id][0]) > 0:
+                            message, date_dati = random.choice(users_data[sender_id][0])
+                            send_message(sender_id, "On " + date_dati + ", this memory lifted your spirits up. :)")
+                            send_message(sender_id, message)
+                        else: # if unsure or negative
+                            send_message(sender_id, random.choice(responses_neutral_negative))
 
                     values = [
                         [sender_id,
                         message_text,
-                        sentiment
+                        sentiment,
+                        str(date.today())
                         ]
                     ]
                     google_sheets.append_values(spreadsheet, 'messages', 'RAW', values)
