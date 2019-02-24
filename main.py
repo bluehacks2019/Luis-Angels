@@ -31,18 +31,34 @@ questions = [
 responses_to_positive_start = [
     "Thank you for sharing that with me!",
     "That's great!",
-    "Nice!"
+    "Nice!",
+	"Awesome!",
+	"That's cool!"
 ]
 responses_to_positive_end = [
     "I'd love to hear more about it!",
     "Do you have more positive memories for today?",
-    "How's school?"
+    "How's school?",
+	"Anything else you want to share?"
 ]
 responses_to_thanks = [
     "Don't mention it!",
     "You're welcome!",
     "Welcome!",
-    ":) I'll always be here whenever you wanna share."
+	"Anytime!",
+    "I'll always be here whenever you wanna share. :)"
+]
+
+responses_to_bye = [
+	"Alright. I hope to hear more from you soon!",
+	"I see. Talk to you again soon!",
+	"Thanks for sharing with me. I hope we can talk again tomorrow!"
+	"I'll still be here tomorrow when you have something you want to share!"
+]
+
+responses_neutral_negative = [
+	"I see. Can you think of something that made you even a little bit happy today?",
+	"Oh, okay. Maybe there's more you can share with me!"
 ]
 
 active_users = set()
@@ -93,7 +109,7 @@ def webhook():
                             datetime_type = nlp_entities["datetime"][0]["type"]
 
                     if bye:
-                        send_message(sender_id, "Thanks for sharing with me. I hope we can talk again tomorrow!")
+                        send_message(sender_id, random.choice(responses_to_bye))
                         active_users.remove(sender_id)
                     elif sender_id not in active_users:
                         q = "Can you share a " + random.choice(questions) + " for today?"
@@ -113,7 +129,7 @@ def webhook():
                                     r_end = "What else happened around " + datetime_body + "?"
                             send_message(sender_id, r_start + " " + r_end)
                         else:
-                            send_message(sender_id, "I see. Can you think of something that made you even a little bit happy today?")
+                            send_message(sender_id, random.choice(responses_neutral_negative)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
