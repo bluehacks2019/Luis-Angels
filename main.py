@@ -52,7 +52,7 @@ responses_to_thanks = [
 responses_to_bye = [
 	"Alright. I hope to hear more from you soon!",
 	"I see. Talk to you again soon!",
-	"Thanks for sharing with me. I hope we can talk again tomorrow!"
+	"Thanks for sharing with me. I hope we can talk again tomorrow!",
 	"I'll still be here tomorrow when you have something you want to share!"
 ]
 
