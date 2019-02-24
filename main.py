@@ -6,6 +6,7 @@ import random
 
 import requests
 from flask import Flask, request
+import google_sheets
 
 app = Flask(__name__)
 
@@ -46,6 +47,8 @@ responses_to_thanks = [
 ]
 
 active_users = set()
+
+spreadsheet = '1HRSiXLFFe3fYqGKCYSRYsYYgHpWQDKegpDJ1M4--mTQ'
 
 @app.route('/', methods=['POST'])
 def webhook():
@@ -114,6 +117,14 @@ def webhook():
                             send_message(sender_id, r_start + " " + r_end)
                         else:
                             send_message(sender_id, "I see. Can you think of something that made you even a little bit happy today?")
+
+                    values = [
+                        [sender_id,
+                        message_text,
+                        sentiment
+                        ]
+                    ]
+                    google_sheets.append_values(spreadsheet, 'messages', 'RAW', values)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
