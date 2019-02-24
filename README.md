@@ -1,17 +1,12 @@
 # Peep-Chatbot
 
-- Team Name and Members
-- Application Description
-- Installation Guide
-- App Guidelines (guidelines include the languages, frameworks, libraries, etc. that were used in making the app)
-
-Luis' Angels
+## Luis' Angels
 - Franz Louis T. Cesista
 - Daniel Raymond D. Del Rio
 - Luis Rainier T. Ligunas
 - Riana Mary Claire G. Lim
 
-Peep Chatbot
+## About
 Peep is a chatbot that serves as a simple journal for anyone. It focuses on the everyday joys and achievements and helps the users recall good memories when they need to. Anyone can message the chatbot and share their stories and memories to it, and Peep will engage in simple conversations with them to encourage them to reflect on good experiences no matter how insignificant they may seem. Peep reminds you that you are more than your negative thoughts and experiences.
 
 ## Install
